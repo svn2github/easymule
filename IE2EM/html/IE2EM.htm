@@ -1,0 +1,82 @@
+<script language="JavaScript">
+
+function AddLink(Url,Info) 
+{
+	obj = new ActiveXObject("IE2EM.IE2EMUrlTaker");
+	if(obj == null)
+	{
+		alert("easyMule might have not been installed!\r\nPlease confirm you easyMule installation.");
+	}
+	else
+	{
+		obj.SendUrl(Url, Info, external.menuArguments.document.URL);
+	}
+	delete obj;
+    obj = null;
+}
+
+function OnContextMenu()
+{
+	srcEvent = external.menuArguments.event;
+	if(typeof(srcEvent.clientX) == "undefined")
+	{
+		EventElement = external.menuArguments.document.elementFromPoint ( srcEvent.pointerX, srcEvent.pointerY );
+	}
+	else
+	{
+		EventElement = external.menuArguments.document.elementFromPoint ( srcEvent.clientX, srcEvent.clientY );
+	}
+	if(srcEvent.type == "MenuExtAnchor")
+	{
+		srcAnchor = EventElement;
+		while(typeof(srcAnchor.scopeName) != "undefined" && srcAnchor.scopeName != "HTML" && typeof(srcAnchor.parentElement) != "undefined")
+		{
+			srcAnchor=srcAnchor.parentElement;
+		}
+		AddLink(srcAnchor.href,srcAnchor.innerText);
+	}
+	else if(srcEvent.type == "MenuExtImage")
+	{
+		if(typeof(srcAnchor.scopeName) != "undefined" && srcAnchor.scopeName == "HTML")
+		{
+			AddLink(EventElement.href,EventElement.Alt);
+		}
+		else
+		{
+			srcImage = EventElement;
+			srcAnchor = srcImage.parentElement;
+			while(typeof(srcAnchor.scopeName) != "undefined" && srcAnchor.scopeName != "HTML" && typeof(srcAnchor.parentElement) != "undefined")
+			{
+				srcAnchor = srcAnchor.parentElement;
+				if(typeof(srcAnchor) == "undefined")
+				{
+					AddLink(srcImage.href,srcImage.Alt);
+					return;
+				}
+			}
+			AddLink(srcAnchor.href,srcImage.Alt);
+		}
+	}
+	else if(srcEvent.type == "MenuExtUnknown")
+	{
+		srcAnchor = EventElement;
+		while(typeof(srcAnchor.scopeName) != "undefined" && srcAnchor.scopeName != "HTML" && typeof(srcAnchor.parentElement) != "undefined")
+		{
+			srcAnchor = srcAnchor.parentElement;
+			if(typeof(srcAnchor) == "undefined")
+			{
+				AddLink(EventElement.href,EventElement.innerText);
+				return;
+			}
+		}
+		AddLink(srcAnchor.href,srcAnchor.innerText);
+	}
+	else
+	{
+		alert("Unknown Event Source \"" + srcEvent.type + "\"\r\nPlease send description of error to http://www.verycd.com/groups/eMuleBeta/")
+	}
+}
+
+OnContextMenu();
+
+</script>
